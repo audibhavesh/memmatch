@@ -1,0 +1,1 @@
+enum MessageViewType { snackBar, toast }
