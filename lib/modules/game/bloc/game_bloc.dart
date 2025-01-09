@@ -16,33 +16,39 @@ class GameBloc extends Cubit<AppState> {
     required this.homeBloc,
   }) : super(GameInitial());
 
-  void startGame() {
+  void startGame(int numCards) {
     _startTime = DateTime.now().millisecondsSinceEpoch;
-    getImages();
+    getImages(numCards);
   }
 
-  void getImages() async {
+  Future<void> getImages(int numCards) async {
+    // if (isClosed) return; // Prevent emitting states if Bloc is closed
     emit(GameImagesLoading());
     try {
-      final images = await imageLoadRepository.getImages();
+      final images =
+          await imageLoadRepository.getImages((numCards / 2).toInt());
       emit(GameImagesLoaded(images?.map((e) => e.downloadUrl ?? "").toList()));
     } catch (e) {
       print(e);
-      emit(GameError('Failed to load images'));
+      if (!isClosed) {
+        emit(GameError('Failed to load images'));
+      }
     }
   }
 
-  void onGameComplete(int moves) {
+  void onGameComplete(int moves, int level, int totalTime) {
     final endTime = DateTime.now().millisecondsSinceEpoch;
     final timeInSeconds = (endTime - _startTime) ~/ 1000;
 
     final score = Score(
-      moves: moves,
-      timeInSeconds: timeInSeconds,
-      timestamp: DateTime.now(),
-    );
+        moves: moves,
+        timeInSeconds: timeInSeconds,
+        timestamp: DateTime.now(),
+        level: level,
+        totalTime: totalTime);
 
     homeBloc.saveScore(score);
+    homeBloc.saveLevel(level);
     emit(GameCompleted(score));
   }
 }

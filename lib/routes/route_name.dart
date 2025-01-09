@@ -7,4 +7,6 @@ class RouteName {
 
   static const homeScreen="/home";
   static const resultScreen="/results";
+  static const historyScreen="/history";
+  static const gameScreen="/game";
 }

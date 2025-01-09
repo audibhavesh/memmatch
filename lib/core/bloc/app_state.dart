@@ -1,7 +1,7 @@
 import 'package:memmatch/core/exceptions/app_exception.dart';
 import 'package:flutter/material.dart';
 
-class AppState {
+class AppState{
   List<Object> get props => [];
 }
 

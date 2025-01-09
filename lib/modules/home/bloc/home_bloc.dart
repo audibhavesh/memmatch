@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:memmatch/core/bloc/app_state.dart';
 import 'package:memmatch/core/constants/app_constants.dart';
 import 'package:memmatch/core/repositories/local_storage_repository.dart';
+import 'package:memmatch/modules/game/bloc/game_state.dart';
 import 'package:memmatch/modules/home/bloc/home_state.dart';
 import 'package:memmatch/modules/game/respository/image_load_repository.dart';
 
@@ -12,21 +13,12 @@ class HomeBloc extends Cubit<AppState> {
 
   final LocalStorageRepository storageRepository;
 
-  var alreadyInserted=false;
+  var alreadyInserted = false;
+
   HomeBloc({required this.imageLoadRepository, required this.storageRepository})
       : super(MemoryMatchInitial());
 
-  void getImages() async {
-    emit(ImagesLoading());
-    try {
-      final images = await imageLoadRepository.getImages();
-      // emit(ImagesLoaded(images));
-      emit(ImagesLoaded(images?.map((e) => e.downloadUrl ?? "").toList()));
-    } catch (e) {
-      print(e);
-      emit(ImagesError('Failed to load images'));
-    }
-  }
+
 
   Future<void> saveScore(Score score) async {
     try {
@@ -47,10 +39,10 @@ class HomeBloc extends Cubit<AppState> {
           await storageRepository.getDocument(AppConstants.SCORES_KEY);
       if (response.payload?['data'] != null) {
         final List scoresList = response.payload!['data'] as List;
-        var scores= scoresList.map((e) => Score.fromJson(e)).toList();
+        var scores = scoresList.map((e) => Score.fromJson(e)).toList();
         emit(ScoresLoaded(scores));
         return scores;
-      }else {
+      } else {
         emit(ScoresLoaded([]));
         return [];
       }
@@ -60,4 +52,29 @@ class HomeBloc extends Cubit<AppState> {
     }
   }
 
+  void saveLevel(int level) async {
+    try {
+      await storageRepository.save(AppConstants.LEVELS_KEY, level);
+      emit(LevelCompleted(level));
+    } catch (e) {
+      print(e);
+      emit(LevelError('Failed to save score'));
+    }
+  }
+
+  Future<void> loadLevel() async {
+    try {
+      final response =
+          await storageRepository.getDocument(AppConstants.LEVELS_KEY);
+      if (response.payload?['data'] != null) {
+        final int level = response.payload!['data'] as int;
+        emit(LevelLoaded(level));
+      } else {
+        emit(LevelLoaded(0));
+      }
+    } catch (e) {
+      print(e);
+      emit(LevelError('Failed to load level'));
+    }
+  }
 }

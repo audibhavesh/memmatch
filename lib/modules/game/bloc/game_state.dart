@@ -22,3 +22,21 @@ class GameCompleted extends AppState {
 
   GameCompleted(this.score);
 }
+
+class LevelCompleted extends AppState {
+  int level = 0;
+
+  LevelCompleted(this.level);
+}
+
+class CurrentLevelFetched extends AppState {
+  int level = 0;
+
+  CurrentLevelFetched(this.level);
+}
+
+class LevelError extends AppState {
+  final String message;
+
+  LevelError(this.message);
+}

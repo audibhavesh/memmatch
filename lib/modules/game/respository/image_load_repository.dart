@@ -9,12 +9,11 @@ import '../../../core/repositories/local_storage_repository.dart';
 class ImageLoadRepository {
   ImageLoadApi imageLoadApi;
 
-
   ImageLoadRepository(this.imageLoadApi);
 
-  Future<List<ImageResponse>?> getImages() async {
+  Future<List<ImageResponse>?> getImages(int? limit) async {
     return handleApiRequest(() async {
-      var response = await imageLoadApi.getImages();
+      var response = await imageLoadApi.getImages(limit: limit ?? 4);
       print("IMAGESSSSSSS $response");
       if (response != null) {
         if (response.isNotEmpty) {

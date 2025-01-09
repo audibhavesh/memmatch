@@ -2,11 +2,13 @@ import 'package:get_it/get_it.dart';
 import 'package:memmatch/core/management/theme/bloc/theme_bloc.dart';
 import 'package:memmatch/core/management/theme/theme_manager.dart';
 import 'package:memmatch/core/package_loader/load_modules.dart';
+import 'package:memmatch/modules/game/bloc/game_bloc.dart';
+import 'package:memmatch/modules/history/bloc/history_bloc.dart';
 import 'package:memmatch/modules/home/bloc/home_bloc.dart';
 import 'package:memmatch/routes/route_provider.dart';
 import 'package:toastification/toastification.dart';
 
-import '../../../core/injector.dart';
+import '../../../injector.dart';
 
 class LauncherScreen extends StatefulWidget {
   const LauncherScreen({super.key});
@@ -24,7 +26,12 @@ class _LauncherScreenState extends State<LauncherScreen> {
       ),
       BlocProvider(
         create: (context) => getIt.get<HomeBloc>(),
-      )
+      ),
+      BlocProvider(
+        create: (context) => getIt.get<GameBloc>(),
+      ),  BlocProvider(
+        create: (context) => getIt.get<HistoryBloc>(),
+      ),
     ], child: getLauncherScreen());
   }
 
