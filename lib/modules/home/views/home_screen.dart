@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           if (state is LevelLoaded) {
             currentLevel = state.level + 1;
-            currentLevel = 10;
+            // currentLevel = 10;
             setState(() {});
           }
         },
