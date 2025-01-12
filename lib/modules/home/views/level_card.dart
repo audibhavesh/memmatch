@@ -1,3 +1,4 @@
+import 'package:memmatch/core/management/theme/color_schemes.dart';
 import 'package:memmatch/core/package_loader/load_modules.dart';
 import 'package:memmatch/modules/home/models/level_config.dart';
 
@@ -21,12 +22,14 @@ class LevelCard extends StatelessWidget {
         width: 140,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey[200] : Colors.white,
+          color: isLocked
+              ? Theme.of(context).colorScheme.outlineVariant
+              : Theme.of(context).colorScheme.tertiaryContainer,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isLocked
-                ? Colors.grey
-                : Theme.of(context).primaryColor,
+                ? Theme.of(context).colorScheme.outline
+                : Theme.of(context).colorScheme.tertiary,
           ),
           boxShadow: [
             BoxShadow(
@@ -40,11 +43,11 @@ class LevelCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (isLocked)
-              const Icon(Icons.lock, size: 32, color: Colors.grey)
+              Icon(Icons.lock,
+                  size: 32, color: Theme.of(context).colorScheme.inverseSurface)
             else
               Icon(Icons.play_circle_outline,
-                  size: 32,
-                  color: Theme.of(context).primaryColor),
+                  size: 32, color: Theme.of(context).colorScheme.tertiary),
             const SizedBox(height: 8),
             Text(
               'Level ${level.level}',

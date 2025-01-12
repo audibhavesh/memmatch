@@ -185,7 +185,6 @@ class UiWidgets {
         showProgressBar: false,
         primaryColor: color,
         backgroundColor: color,
-
       );
     }
   }
@@ -301,5 +300,46 @@ class UiWidgets {
         );
       },
     );
+  }
+
+  static Widget getSvgFromNetwork(String url,
+      {required double width,
+      required double height,
+      double? padding = 0,
+      double paddingLeft = 0,
+      double paddingTop = 0,
+      double paddingRight = 0,
+      double paddingBottom = 0,
+      ColorFilter? colorFilter,
+      BoxFit? fit}) {
+    if (padding != 0) {
+      return Padding(
+        padding: EdgeInsets.all(padding ?? 0),
+        child: SvgPicture.network(
+          url,
+          alignment: Alignment.center,
+          width: width,
+          height: height,
+          colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
+        ),
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsets.only(
+            left: paddingLeft,
+            top: paddingTop,
+            right: paddingRight,
+            bottom: paddingBottom),
+        child: SvgPicture.network(
+          url,
+          alignment: Alignment.center,
+          width: width,
+          height: height,
+          colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
+        ),
+      );
+    }
   }
 }

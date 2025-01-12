@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:memmatch/core/management/theme/color_schemes.dart';
+import 'package:memmatch/core/management/theme/util.dart';
 
 enum AppTheme { Light, Dark }
 
 class ThemeManager {
   static ThemeMode mode = ThemeMode.light;
 
+  static BuildContext? context;
   static final appThemeData = {
     AppTheme.Light:
-        ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-    AppTheme.Dark: ThemeData(useMaterial3: true, colorScheme: darkColorScheme)
+        MaterialTheme(createTextTheme(context!, "Poppins", "Poppins")).light(),
+    AppTheme.Dark:
+        MaterialTheme(createTextTheme(context!, "Poppins", "Poppins")).dark()
   };
 }

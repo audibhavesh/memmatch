@@ -116,11 +116,11 @@ class _GameScreenState extends State<GameScreen> {
           // Level Progress Indicator
           LinearProgressIndicator(
             value: _timeRemaining / widget.levelConfig.timeLimit,
-            backgroundColor: Colors.grey[200],
+            // backgroundColor: Colors.grey[200],
             valueColor: AlwaysStoppedAnimation<Color>(
               _timeRemaining < widget.levelConfig.timeLimit * 0.3
                   ? Colors.red
-                  : Theme.of(context).primaryColor,
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
           Expanded(

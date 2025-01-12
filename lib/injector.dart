@@ -8,6 +8,9 @@ import 'package:memmatch/modules/history/bloc/history_bloc.dart';
 import 'package:memmatch/modules/home/bloc/home_bloc.dart';
 import 'package:memmatch/modules/game/network/image_load_api.dart';
 import 'package:memmatch/modules/game/respository/image_load_repository.dart';
+import 'package:memmatch/modules/register/bloc/register_bloc.dart';
+import 'package:memmatch/modules/register/network/register_api.dart';
+import 'package:memmatch/modules/register/repository/register_repository.dart';
 
 import 'core/repositories/local_storage_repository.dart';
 
@@ -19,12 +22,16 @@ serviceLocator() {
 
   getIt.registerSingleton<BaseApi>(BaseApi(getIt.get<Dio>()));
   getIt.registerSingleton<ImageLoadApi>(ImageLoadApi(getIt.get<Dio>()));
+  getIt.registerSingleton<RegisterApi>(RegisterApi(getIt.get<Dio>()));
 
   getIt.registerSingleton<BaseRepository>(BaseRepository(getIt.get<BaseApi>()));
   getIt.registerSingleton<LocalStorageRepository>(LocalStorageRepository());
 
   getIt.registerSingleton<ImageLoadRepository>(
       ImageLoadRepository(getIt.get<ImageLoadApi>()));
+
+  getIt.registerSingleton<RegisterRepository>(
+      RegisterRepository(getIt.get<RegisterApi>()));
 
   getIt.registerSingleton<HomeBloc>(HomeBloc(
     imageLoadRepository: getIt.get<ImageLoadRepository>(),
@@ -40,5 +47,10 @@ serviceLocator() {
     HistoryBloc(
       storageRepository: getIt.get<LocalStorageRepository>(),
     ),
+  );
+  getIt.registerSingleton<RegisterBloc>(
+    RegisterBloc(
+        registerRepository: getIt.get<RegisterRepository>(),
+        localStorageRepository: getIt.get<LocalStorageRepository>()),
   );
 }
