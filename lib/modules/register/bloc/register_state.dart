@@ -32,9 +32,10 @@ class LoadUserDetails extends AppState {}
 class UserDetailsLoaded extends AppState {
   final String username;
   final int selectedIndex;
+  final String avatarImagePath;
 
-  UserDetailsLoaded(this.username, this.selectedIndex);
+  UserDetailsLoaded(this.username, this.selectedIndex, this.avatarImagePath);
 
   @override
-  List<Object> get props => [username, selectedIndex];
+  List<Object> get props => [username, selectedIndex, avatarImagePath];
 }

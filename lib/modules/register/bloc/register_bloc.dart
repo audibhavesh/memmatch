@@ -53,10 +53,16 @@ class RegisterBloc extends Cubit<AppState> {
       var selectedAvatarResponse =
           await localStorageRepository.getDocument(AppConstants.AVATAR);
 
+      var avatarImage =
+          await localStorageRepository.getDocument(AppConstants.AVATAR_PATH);
+
       if (userNameResponse.payload["data"] != null &&
-          selectedAvatarResponse.payload["data"] != null) {
-        emit(UserDetailsLoaded(userNameResponse.payload["data"],
-            selectedAvatarResponse.payload["data"]));
+          selectedAvatarResponse.payload["data"] != null &&
+          avatarImage.payload["data"] != null) {
+        emit(UserDetailsLoaded(
+            userNameResponse.payload["data"],
+            selectedAvatarResponse.payload["data"],
+            avatarImage.payload["data"]));
       }
     } catch (e) {
       print(e);

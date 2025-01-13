@@ -15,8 +15,5 @@ abstract class RegisterApi {
   Future<String?> getAvatarImages();
 
   @GET("{url}")
-  // @Headers({
-  //   "Accept": "application/octet-stream",
-  // })
   Future<String?> downloadImage(@Path("url") String url);
 }

@@ -21,20 +21,12 @@ class RegisterRepository {
   Future<List<Avatar>?> getAvatarImages() async {
     return handleApiRequest(() async {
       var response = await registerApi.getAvatarImages();
-      if (response is String) {
+      try {
         final List<dynamic> jsonData = json.decode(response ?? "[]");
         return jsonData.map((json) => Avatar.fromJson(json)).toList();
+      } catch (e) {
+        throw AppException(AppResponseType.failed, "Failed");
       }
-      // print("IMAGESSSSSSS $response");
-      // if (response != null) {
-      //   if (response.isNotEmpty) {
-      //     return response;
-      //   } else {
-      //     throw AppException(AppResponseType.dataNotFound, "Not found");
-      //   }
-      // } else {
-      //   throw AppException(AppResponseType.failed, "Failed");
-      // }
     });
   }
 
@@ -47,9 +39,6 @@ class RegisterRepository {
     try {
       // Fetch the image as bytes
       final String? imageBytes = await registerApi.downloadImage(imageUrl);
-      // final List<int> imageBytes = await registerApi.downloadImage(imageUrl);
-      // final Uint8List uint8ImageBytes = Uint8List.fromList(imageBytes);
-
       // Save the image locally
       final directory = await getApplicationDocumentsDirectory();
       final imagePath = "${directory.path}/avatar_$selectedIndex.svg";

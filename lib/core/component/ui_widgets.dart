@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:memmatch/core/types/message_view_type.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
@@ -26,7 +28,8 @@ class UiWidgets {
       double paddingTop = 0,
       double paddingRight = 0,
       double paddingBottom = 0,
-      ColorFilter? colorFilter}) {
+      ColorFilter? colorFilter,
+      BoxFit? fit}) {
     if (padding != 0) {
       return Padding(
         padding: EdgeInsets.all(padding ?? 0),
@@ -36,6 +39,7 @@ class UiWidgets {
           width: width,
           height: height,
           colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
         ),
       );
     } else {
@@ -51,6 +55,7 @@ class UiWidgets {
           width: width,
           height: height,
           colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
         ),
       );
     }
@@ -338,6 +343,62 @@ class UiWidgets {
           height: height,
           colorFilter: colorFilter,
           fit: fit ?? BoxFit.cover,
+        ),
+      );
+    }
+  }
+
+  static Widget getSvgFromPath(String path,
+      {required double width,
+      required double height,
+      double? padding = 0,
+      double paddingLeft = 0,
+      double paddingTop = 0,
+      double paddingRight = 0,
+      double paddingBottom = 0,
+      ColorFilter? colorFilter,
+      BoxFit? fit,
+      Widget? errorWidget}) {
+    if (padding != 0) {
+      return Padding(
+        padding: EdgeInsets.all(padding ?? 0),
+        child: SvgPicture.file(
+          File(path),
+          alignment: Alignment.center,
+          width: width,
+          height: height,
+          colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            print(stackTrace);
+            print(error);
+            return IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {},
+            );
+          },
+        ),
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsets.only(
+            left: paddingLeft,
+            top: paddingTop,
+            right: paddingRight,
+            bottom: paddingBottom),
+        child: SvgPicture.file(
+          File(path),
+          alignment: Alignment.center,
+          width: width,
+          height: height,
+          colorFilter: colorFilter,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // print(stackTrace);
+            // print(error);
+            return errorWidget?? Container();
+
+          },
         ),
       );
     }

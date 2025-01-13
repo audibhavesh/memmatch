@@ -134,6 +134,19 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
+  void _scrollToSelectedIndex() {
+    // Add post frame callback to ensure PageView is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          selectedIndex,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RegisterBloc, AppState>(
@@ -141,9 +154,19 @@ class _RegisterScreenState extends State<RegisterScreen>
         if (state is AvatarImageLoaded) {
           avatars = state.avatars;
           setState(() {});
+          if (widget.viewType == "EDIT") {
+            context.read<RegisterBloc>().loadUserDetails();
+          }
         }
         if (state is UserDetailsSaved) {
           GoRouter.of(context).pushReplacementNamed(RouteName.homeScreen);
+        }
+        if (state is UserDetailsLoaded) {
+          _nameController.text = state.username;
+          selectedIndex = state.selectedIndex;
+
+          _scrollToSelectedIndex();
+          setState(() {});
         }
       },
       builder: (context, state) {
@@ -178,6 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                           SizedBox(
                             height: 210,
                             child: PageView.builder(
+                              // scrollBehavior: CupertinoScrollBehavior(),
                               controller: _pageController,
                               onPageChanged: (index) {
                                 setState(() {
@@ -260,6 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   ),
                                 ),
                               ),
+                              maxLength: 20,
                             ),
                           ),
                           if (_showError)
