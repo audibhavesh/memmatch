@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:memmatch/core/management/network/network_cubit.dart';
 import 'package:memmatch/core/management/theme/bloc/theme_bloc.dart';
 import 'package:memmatch/core/management/theme/theme_manager.dart';
 import 'package:memmatch/core/management/theme/util.dart';
@@ -28,6 +29,9 @@ class _LauncherScreenState extends State<LauncherScreen> {
       BlocProvider(
         create: (context) =>
             ThemeBloc(getIt.get<LocalStorageRepository>())..loadLocalTheme(),
+      ),
+      BlocProvider(
+        create: (context) => InternetCubit(),
       ),
       BlocProvider(
         create: (context) => getIt.get<HomeBloc>(),

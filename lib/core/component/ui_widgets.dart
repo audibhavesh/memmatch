@@ -16,6 +16,9 @@ class UiWidgets {
         alignment: Alignment.center,
         width: width,
         height: height,
+        placeholderBuilder: (context) {
+          return Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
@@ -40,6 +43,9 @@ class UiWidgets {
           height: height,
           colorFilter: colorFilter,
           fit: fit ?? BoxFit.cover,
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
+          },
         ),
       );
     } else {
@@ -56,6 +62,9 @@ class UiWidgets {
           height: height,
           colorFilter: colorFilter,
           fit: fit ?? BoxFit.cover,
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
+          },
         ),
       );
     }
@@ -177,9 +186,9 @@ class UiWidgets {
               ? message ?? ErrorMessages.somethingWentWrong
               : ErrorMessages.somethingWentWrong,
           textAlign: TextAlign.center,
-          style: GoogleFonts.lato(
+          style: GoogleFonts.poppins(
             textStyle: const TextStyle(
-              fontSize: 16,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
               color: AppColors.white,
             ),
@@ -327,6 +336,9 @@ class UiWidgets {
           height: height,
           colorFilter: colorFilter,
           fit: fit ?? BoxFit.cover,
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
+          },
         ),
       );
     } else {
@@ -343,6 +355,9 @@ class UiWidgets {
           height: height,
           colorFilter: colorFilter,
           fit: fit ?? BoxFit.cover,
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
+          },
         ),
       );
     }
@@ -377,6 +392,9 @@ class UiWidgets {
               onPressed: () {},
             );
           },
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
+          },
         ),
       );
     } else {
@@ -396,8 +414,10 @@ class UiWidgets {
           errorBuilder: (context, error, stackTrace) {
             // print(stackTrace);
             // print(error);
-            return errorWidget?? Container();
-
+            return errorWidget ?? Container();
+          },
+          placeholderBuilder: (context) {
+            return Center(child: CircularProgressIndicator());
           },
         ),
       );

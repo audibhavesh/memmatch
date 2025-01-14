@@ -3,7 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memmatch/core/helpers/network_helper.dart';
+import 'package:memmatch/core/management/network/network_cubit.dart';
+import 'package:memmatch/core/management/network/network_state.dart';
 import 'package:memmatch/core/package_loader/load_modules.dart';
+import 'package:memmatch/core/types/message_view_type.dart';
 import 'package:memmatch/modules/register/bloc/register_bloc.dart';
 import 'package:memmatch/modules/register/bloc/register_state.dart';
 import 'package:memmatch/modules/register/models/avatar.dart';
@@ -64,6 +68,14 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     // Start the typing animation after a short delay
     Future.delayed(const Duration(milliseconds: 500), _startTypingAnimation);
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        NetworkHelper.checkConnectivity(context, () {
+          context.read<RegisterBloc>().getAvatarImages();
+        });
+      },
+    );
   }
 
   void _startTypingAnimation() {
@@ -131,6 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     _nameController.dispose();
     _pageController.dispose();
     _arrowController.dispose();
+
     super.dispose();
   }
 
@@ -149,202 +162,225 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<RegisterBloc, AppState>(
+    return BlocListener<InternetCubit,AppState>(
       listener: (context, state) {
-        if (state is AvatarImageLoaded) {
-          avatars = state.avatars;
-          setState(() {});
-          if (widget.viewType == "EDIT") {
-            context.read<RegisterBloc>().loadUserDetails();
+        if(state is NetworkConnectedState){
+          if(avatars.isEmpty){
+            context.read<RegisterBloc>().getAvatarImages();
           }
         }
-        if (state is UserDetailsSaved) {
-          GoRouter.of(context).pushReplacementNamed(RouteName.homeScreen);
+        if(state is NetworkDisconnectedState){
+          UiWidgets.showAppMessages(context, AppResponseType.internetNotConnected,
+              ErrorMessages.noInternetConnection,messageViewType: MessageViewType.snackBar);
         }
-        if (state is UserDetailsLoaded) {
-          _nameController.text = state.username;
-          selectedIndex = state.selectedIndex;
-
-          _scrollToSelectedIndex();
-          setState(() {});
+        if(state is NetworkSlowState){
+          UiWidgets.showAppMessages(context, AppResponseType.error,
+              ErrorMessages.slowInternetConnection,messageViewType: MessageViewType.snackBar);
         }
       },
-      builder: (context, state) {
-        if (state is AvatarImageLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return Scaffold(
-          body: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(
-                parent: NeverScrollableScrollPhysics()),
-            primary: false,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width,
-                minHeight: MediaQuery.of(context).size.height,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Select Your Avatar",
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    SizedBox(
-                      height: 300,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // PageView for scrolling images
-                          SizedBox(
-                            height: 210,
-                            child: PageView.builder(
-                              // scrollBehavior: CupertinoScrollBehavior(),
-                              controller: _pageController,
-                              onPageChanged: (index) {
-                                setState(() {
-                                  selectedIndex = index;
-                                });
-                              },
-                              itemCount: avatars.length,
-                              itemBuilder: (context, index) {
-                                final avatar = avatars[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: UiWidgets.getSvgFromNetwork(
-                                          avatar.imageUrl ?? "",
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover)),
-                                );
-                              },
-                            ),
-                          ),
-                          // Fixed blue circle overlay
-                          Positioned(
-                            top: 250,
-                            child: Icon(
-                              Icons.keyboard_double_arrow_up_outlined,
-                              size: 50,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          if (state is SavingUserDetails)
-                            Positioned(
-                                top: 0,
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: const Center(
-                                    child: CircularProgressIndicator()))
-                        ],
+      child: BlocConsumer<RegisterBloc, AppState>(
+        listener: (context, state) {
+          if (state is AvatarImageLoaded) {
+            avatars = state.avatars;
+            setState(() {});
+            if (widget.viewType == "EDIT") {
+              context.read<RegisterBloc>().loadUserDetails();
+            }
+          }
+          if (state is UserDetailsSaved) {
+            GoRouter.of(context).pushReplacementNamed(RouteName.homeScreen);
+          }
+          if (state is UserDetailsLoaded) {
+            _nameController.text = state.username;
+            selectedIndex = state.selectedIndex;
+
+            _scrollToSelectedIndex();
+            setState(() {});
+          }
+          if (state is RegisterError) {
+            UiWidgets.showAppMessages(
+                context, AppResponseType.error, state.message,
+                messageViewType: MessageViewType.snackBar);
+          }
+        },
+        builder: (context, state) {
+          if (state is AvatarImageLoading) {
+            return Scaffold(
+                body: const Center(child: CircularProgressIndicator()));
+          }
+          return Scaffold(
+            body: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(
+                  parent: NeverScrollableScrollPhysics()),
+              primary: false,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width,
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Select Your Avatar",
+                        style: Theme.of(context).textTheme.headlineLarge,
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32.0, vertical: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Transform.translate(
-                            offset: Offset(_textFieldOffset, 0),
-                            child: TextField(
-                              controller: _nameController,
-                              decoration: InputDecoration(
-                                hintText:
-                                    _animatedText + (_showCursor ? "|" : ""),
-                                hintStyle: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color:
-                                        _showError ? Colors.red : Colors.blue,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color:
-                                        _showError ? Colors.red : Colors.blue,
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color:
-                                        _showError ? Colors.red : Colors.blue,
-                                  ),
-                                ),
-                              ),
-                              maxLength: 20,
-                            ),
-                          ),
-                          if (_showError)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, left: 12.0),
-                              child: Text(
-                                'Please enter your name',
-                                style: TextStyle(
-                                  color: Colors.red[700],
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32.0),
-                      child: ElevatedButton(
-                        onPressed: _handleButtonPress,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32.0, vertical: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      SizedBox(
+                        height: 300,
+                        child: Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Text(
-                              widget.viewType == "NEW" ? "Let's Go" : "Save",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            // PageView for scrolling images
+                            SizedBox(
+                              height: 210,
+                              child: PageView.builder(
+                                // scrollBehavior: CupertinoScrollBehavior(),
+                                controller: _pageController,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    selectedIndex = index;
+                                  });
+                                },
+                                itemCount: avatars.length,
+                                itemBuilder: (context, index) {
+                                  final avatar = avatars[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(100),
+                                        child: UiWidgets.getSvgFromNetwork(
+                                            avatar.imageUrl ?? "",
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover)),
+                                  );
+                                },
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            if (widget.viewType == "NEW")
-                              SlideTransition(
-                                position: _arrowAnimation,
-                                child: const Icon(
-                                  Icons.arrow_forward,
-                                  color: Colors.white,
+                            // Fixed blue circle overlay
+                            Positioned(
+                              top: 250,
+                              child: Icon(
+                                Icons.keyboard_double_arrow_up_outlined,
+                                size: 50,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            if (state is SavingUserDetails)
+                              Positioned(
+                                  top: 0,
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: const Center(
+                                      child: CircularProgressIndicator()))
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32.0, vertical: 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Transform.translate(
+                              offset: Offset(_textFieldOffset, 0),
+                              child: TextField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      _animatedText + (_showCursor ? "|" : ""),
+                                  hintStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color:
+                                          _showError ? Colors.red : Colors.blue,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color:
+                                          _showError ? Colors.red : Colors.blue,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color:
+                                          _showError ? Colors.red : Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                                maxLength: 20,
+                              ),
+                            ),
+                            if (_showError)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, left: 12.0),
+                                child: Text(
+                                  'Please enter your name',
+                                  style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 32.0),
+                        child: ElevatedButton(
+                          onPressed: _handleButtonPress,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 32.0, vertical: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.viewType == "NEW" ? "Let's Go" : "Save",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              if (widget.viewType == "NEW")
+                                SlideTransition(
+                                  position: _arrowAnimation,
+                                  child: const Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

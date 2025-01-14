@@ -8,4 +8,6 @@ class ErrorMessages {
 
   static const noInternetConnection =
       "Device is not connected to internet, Please connect to internet.";
+
+  static String? slowInternetConnection="Internet is slow.";
 }

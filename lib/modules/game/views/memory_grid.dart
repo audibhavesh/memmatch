@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:memmatch/core/management/cache/file_prefetcher.dart';
+import 'package:memmatch/injector.dart';
 import 'package:memmatch/modules/home/models/level_config.dart';
 import 'dart:math' show pi;
 
@@ -149,8 +152,26 @@ class _MemoryGridState extends State<MemoryGrid> with TickerProviderStateMixin {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: CachedNetworkImage(
-                          cacheKey: _shuffledImages[index],
+                        child:
+                            // Image(
+                            //     loadingBuilder: (context, child, url) =>
+                            //         const Center(
+                            //           child: CupertinoActivityIndicator(),
+                            //         ),
+                            //     errorBuilder: (context, url, error) =>
+                            //         const Center(
+                            //           child: Icon(Icons.error, color: Colors.red),
+                            //         ),
+                            //     image:CachedNetworkImageProvider(
+                            //         _shuffledImages[index],
+                            //         cacheManager:
+                            //             getIt.get<DefaultCacheManager>(),
+                            //         cacheKey: ImagePreFetcher.generateCacheKey(
+                            //             _shuffledImages[index])))
+
+                            CachedNetworkImage(
+                          // cacheKey: ImagePreFetcher.generateCacheKey(
+                          //     _shuffledImages[index]),
                           imageUrl: _shuffledImages[index],
                           placeholder: (context, url) => const Center(
                             child: CupertinoActivityIndicator(),
@@ -159,6 +180,7 @@ class _MemoryGridState extends State<MemoryGrid> with TickerProviderStateMixin {
                             child: Icon(Icons.error, color: Colors.red),
                           ),
                           fit: BoxFit.cover,
+                          // cacheManager: getIt.get<DefaultCacheManager>()
                         ),
                       ),
                     )

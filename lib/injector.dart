@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memmatch/core/network/client/api_client.dart';
 import 'package:memmatch/core/network/repository/base_repository.dart';
@@ -32,6 +33,8 @@ serviceLocator() {
 
   getIt.registerSingleton<RegisterRepository>(
       RegisterRepository(getIt.get<RegisterApi>()));
+
+  getIt.registerSingleton<DefaultCacheManager>(DefaultCacheManager());
 
   getIt.registerSingleton<HomeBloc>(HomeBloc(
     imageLoadRepository: getIt.get<ImageLoadRepository>(),

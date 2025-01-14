@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:go_router/go_router.dart';
+import 'package:memmatch/core/management/network/network_cubit.dart';
 import 'package:memmatch/core/management/theme/bloc/theme_bloc.dart';
 import 'package:memmatch/core/management/theme/theme_manager.dart';
 import 'package:memmatch/core/package_loader/load_modules.dart';
@@ -101,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // context.read<HomeBloc>().loadScores();
+
     context.read<HomeBloc>().loadLevel();
     context.read<RegisterBloc>().loadUserDetails();
   }
