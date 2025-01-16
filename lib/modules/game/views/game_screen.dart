@@ -58,8 +58,7 @@ class _GameScreenState extends State<GameScreen> {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (buildContext) =>
-            AlertDialog(
+        builder: (buildContext) => AlertDialog(
               title: const Text('Time\'s Up! ⏰'),
               content: const Text('You ran out of time. Try again!'),
               actions: [
@@ -109,9 +108,7 @@ class _GameScreenState extends State<GameScreen> {
                   const Icon(Icons.timer_outlined),
                   const SizedBox(width: 4),
                   Text(
-                    '${_timeRemaining ~/ 60}:${(_timeRemaining % 60)
-                        .toString()
-                        .padLeft(2, '0')}',
+                    '${_timeRemaining ~/ 60}:${(_timeRemaining % 60).toString().padLeft(2, '0')}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -152,10 +149,7 @@ class _GameScreenState extends State<GameScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(
                 _timeRemaining < widget.levelConfig.timeLimit * 0.3
                     ? Colors.red
-                    : Theme
-                    .of(context)
-                    .colorScheme
-                    .primary,
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             Expanded(
@@ -167,74 +161,68 @@ class _GameScreenState extends State<GameScreen> {
                         widget.levelConfig.timeLimit - _timeRemaining;
                     Future.delayed(
                       Duration(milliseconds: 500),
-                          () {
+                      () {
                         if (mounted) {
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) =>
-                                AlertDialog(
-                                  title: Text(
-                                    state.score.moves <=
+                            builder: (context) => AlertDialog(
+                              title: Text(
+                                state.score.moves <=
                                         widget.levelConfig.requiredMoves
-                                        ? 'Level Complete! 🎉'
-                                        : 'Level Finished',
+                                    ? 'Level Complete! 🎉'
+                                    : 'Level Finished',
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Moves: ${state.score.moves}'),
+                                  Text(
+                                    'Time: ${timeSpent ~/ 60}m ${timeSpent % 60}s',
                                   ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
-                                    children: [
-                                      Text('Moves: ${state.score.moves}'),
-                                      Text(
-                                        'Time: ${timeSpent ~/ 60}m ${timeSpent %
-                                            60}s',
+                                  if (state.score.moves <=
+                                      widget.levelConfig.requiredMoves)
+                                    const Text(
+                                      '\nCongratulations! You\'ve unlocked the next level!',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      if (state.score.moves <=
-                                          widget.levelConfig.requiredMoves)
-                                        const Text(
-                                          '\nCongratulations! You\'ve unlocked the next level!',
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )
-                                      else
-                                        Text(
-                                          '\nTry to complete in ${widget
-                                              .levelConfig
-                                              .requiredMoves} moves to unlock the next level.',
-                                          style: const TextStyle(
-                                            color: Colors.orange,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Back to Levels'),
+                                    )
+                                  else
+                                    Text(
+                                      '\nTry to complete in ${widget.levelConfig.requiredMoves} moves to unlock the next level.',
+                                      style: const TextStyle(
+                                        color: Colors.orange,
+                                      ),
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        buildContext
-                                            .read<GameBloc>()
-                                            .startGame(
-                                            widget.levelConfig.numCards);
-                                        setState(() {
-                                          _timeRemaining =
-                                              widget.levelConfig.timeLimit;
-                                          _startTimer();
-                                        });
-                                      },
-                                      child: const Text('Play Again'),
-                                    ),
-                                  ],
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Back to Levels'),
                                 ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    buildContext
+                                        .read<GameBloc>()
+                                        .startGame(widget.levelConfig.numCards);
+                                    setState(() {
+                                      _timeRemaining =
+                                          widget.levelConfig.timeLimit;
+                                      _startTimer();
+                                    });
+                                  },
+                                  child: const Text('Play Again'),
+                                ),
+                              ],
+                            ),
                           );
                         }
                       },
@@ -243,6 +231,14 @@ class _GameScreenState extends State<GameScreen> {
                   if (state is GameImagesLoaded) {
                     images = state.images ?? [];
                     // ImagePreFetcher.prefetchImages(state.images ?? []);
+                    ImagePreFetcher.prefetchImages(context,images)
+                        .then((_) {
+                      // Optional: You can handle completion here if needed
+                      print('Images prefetching completed');
+                    }).catchError((error) {
+                      print('Error during prefetching: $error');
+                    });
+
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _timeRemaining = widget.levelConfig.timeLimit;
                       _startTimer();
@@ -260,10 +256,10 @@ class _GameScreenState extends State<GameScreen> {
                       levelConfig: widget.levelConfig,
                       onGameComplete: (moves) {
                         context.read<GameBloc>().onGameComplete(
-                          moves,
-                          widget.levelConfig.level,
-                          widget.levelConfig.timeLimit - _timeRemaining,
-                        );
+                            moves,
+                            widget.levelConfig.level,
+                            widget.levelConfig.timeLimit - _timeRemaining,
+                            widget.levelConfig.requiredMoves);
                       },
                       restartGame: () {
                         context

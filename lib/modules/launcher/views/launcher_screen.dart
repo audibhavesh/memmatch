@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:memmatch/core/management/cache/file_prefetcher.dart';
 import 'package:memmatch/core/management/network/network_cubit.dart';
 import 'package:memmatch/core/management/theme/bloc/theme_bloc.dart';
 import 'package:memmatch/core/management/theme/theme_manager.dart';
@@ -79,5 +80,11 @@ class _LauncherScreenState extends State<LauncherScreen> {
             });
           });
     });
+  }
+
+  @override
+  void dispose() {
+    ImagePreFetcher.clearCachePreloadedImages();
+    super.dispose();
   }
 }

@@ -301,6 +301,33 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 32.0),
+                            child: ElevatedButton(
+                              onPressed: _handleResetButtonPress,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32.0, vertical: 16.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Reset Game",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -340,5 +367,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _handleButtonPress() {
     GoRouter.of(context).pushNamed(RouteName.historyScreen);
+  }
+
+  void _handleResetButtonPress() {
+    _showResetDialog();
+  }
+
+  void _showResetDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (buildContext) => AlertDialog(
+              title: const Text(
+                'Warning',
+              ),
+              content: const Text('You will loose all your un-locked levels'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Back to Home'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<HomeBloc>().resetGame();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Reset'),
+                ),
+              ],
+            ));
   }
 }

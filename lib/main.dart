@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memmatch/core/management/theme/theme_mode_adapter.dart';
 import 'package:memmatch/injector.dart';
@@ -13,5 +14,6 @@ void main() async {
 
   serviceLocator();
   await SessionHandler();
-  runApp(const LauncherScreen());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(const LauncherScreen()));
 }

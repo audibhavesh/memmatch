@@ -36,7 +36,7 @@ class GameBloc extends Cubit<AppState> {
     }
   }
 
-  void onGameComplete(int moves, int level, int totalTime) {
+  void onGameComplete(int moves, int level, int totalTime, int requiredMoves) {
     final endTime = DateTime.now().millisecondsSinceEpoch;
     final timeInSeconds = (endTime - _startTime) ~/ 1000;
 
@@ -48,7 +48,9 @@ class GameBloc extends Cubit<AppState> {
         totalTime: totalTime);
 
     homeBloc.saveScore(score);
-    homeBloc.saveLevel(level);
+    if (moves <= requiredMoves) {
+      homeBloc.saveLevel(level);
+    }
     emit(GameCompleted(score));
   }
 }

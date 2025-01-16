@@ -18,8 +18,6 @@ class HomeBloc extends Cubit<AppState> {
   HomeBloc({required this.imageLoadRepository, required this.storageRepository})
       : super(MemoryMatchInitial());
 
-
-
   Future<void> saveScore(Score score) async {
     try {
       final scores = await loadScores();
@@ -52,7 +50,7 @@ class HomeBloc extends Cubit<AppState> {
     }
   }
 
-  void saveLevel(int level) async {
+  Future<void> saveLevel(int level) async {
     try {
       await storageRepository.save(AppConstants.LEVELS_KEY, level);
       emit(LevelCompleted(level));
@@ -76,5 +74,10 @@ class HomeBloc extends Cubit<AppState> {
       print(e);
       emit(LevelError('Failed to load level'));
     }
+  }
+
+  Future<void> resetGame() async {
+    await saveLevel(0);
+    await loadLevel();
   }
 }

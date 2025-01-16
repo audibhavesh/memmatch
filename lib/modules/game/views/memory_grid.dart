@@ -123,7 +123,7 @@ class _MemoryGridState extends State<MemoryGrid> with TickerProviderStateMixin {
   }
 
   Widget _buildCard(int index) {
-    precacheImage(CachedNetworkImageProvider(_shuffledImages[index]), context);
+    // precacheImage(CachedNetworkImageProvider(_shuffledImages[index]), context);
     return GestureDetector(
       onTap: () => _onCardTap(index),
       child: AnimatedBuilder(
@@ -170,9 +170,13 @@ class _MemoryGridState extends State<MemoryGrid> with TickerProviderStateMixin {
                             //             _shuffledImages[index])))
 
                             CachedNetworkImage(
+                          cacheKey: ImagePreFetcher.generateCacheKey(
+                              _shuffledImages[index]),
+                          imageUrl: _shuffledImages[index],
+                          cacheManager:ImagePreFetcher.cacheManager,
                           // cacheKey: ImagePreFetcher.generateCacheKey(
                           //     _shuffledImages[index]),
-                          imageUrl: _shuffledImages[index],
+                          // imageUrl: _shuffledImages[index],
                           placeholder: (context, url) => const Center(
                             child: CupertinoActivityIndicator(),
                           ),
